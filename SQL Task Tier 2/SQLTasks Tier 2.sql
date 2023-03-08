@@ -77,24 +77,24 @@ different costs to members (the listed costs are per half-hour 'slot'), and
 the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
-SELECT Facilities.name, CONCAT(firstname, ' ' ,surname) AS membername, CASE WHEN Bookings.memid>0 THEN slots*membercost ELSE slots*guestcost END AS total
+SELECT Facilities.name, CONCAT(firstname, ' ' ,surname) AS membername, CASE WHEN Bookings.memid>0 THEN slots*membercost ELSE slots*guestcost END AS cost
 FROM `Bookings` 
 LEFT JOIN `Facilities` 
 USING (facid)
 LEFT JOIN `Members`
 USING (memid)
 WHERE starttime LIKE '2012-09-14%'
-HAVING total>30
-ORDER BY total DESC;
+HAVING cost>30
+ORDER BY cost DESC;
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
-SELECT name, CONCAT(firstname, ' ' ,surname) AS membername, CASE WHEN subquery.memid>0 THEN slots*membercost ELSE slots*guestcost END AS total
+SELECT name, CONCAT(firstname, ' ' ,surname) AS membername, CASE WHEN subquery.memid>0 THEN slots*membercost ELSE slots*guestcost END AS cost
 FROM (SELECT name, memid, slots, membercost, guestcost, starttime FROM `Bookings` LEFT JOIN `Facilities` USING (facid)) AS subquery
 LEFT JOIN `Members` 
 USING (memid)
 WHERE starttime LIKE '2012-09-14%'
-HAVING total>30
-ORDER BY total DESC;
+HAVING cost>30
+ORDER BY cost DESC;
 
 
 /* PART 2: SQLite
