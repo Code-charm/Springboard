@@ -106,12 +106,37 @@ QUESTIONS:
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
+SELECT name, SUM(cost) AS revenue
+FROM (SELECT Facilities.name, CASE WHEN Bookings.memid>0 THEN slots*membercost ELSE slots*guestcost END AS cost
+    FROM `Bookings` 
+    LEFT JOIN `Facilities` 
+    USING (facid)
+    LEFT JOIN `Members`
+    USING (memid)) AS subquery
+GROUP BY name
+HAVING revenue < 1000
+ORDER BY revenue DESC;
 
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
-
+SELECT p1.surname, p1.firstname, p2.surname AS Recsurname, p2.firstname AS Recfirstname
+FROM `Members` AS p1
+INNER JOIN `Members` AS p2
+ON p1.recommendedby = p2.memid
+ORDER BY p1.surname;
 
 /* Q12: Find the facilities with their usage by member, but not guests */
-
+SELECT name, SUM(slots) AS usage_in_slots
+FROM (SELECT Bookings.facid, name, slots, memid
+    FROM Bookings
+    LEFT JOIN Facilities
+    USING (facid)) AS subquery
+WHERE memid <>0
+GROUP BY name;
 
 /* Q13: Find the facilities usage by month, but not guests */
-
+SELECT name, month, SUM(memslots) AS memusage_in_slots
+FROM (SELECT facid, name, LEFT(starttime, 7) AS month, CASE WHEN memid<>0 THEN slots ELSE 0 END AS memslots
+    FROM Bookings
+    LEFT JOIN Facilities
+    USING (facid)) AS subquery
+GROUP BY name, month;
